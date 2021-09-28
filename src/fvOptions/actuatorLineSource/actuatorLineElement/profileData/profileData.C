@@ -266,21 +266,25 @@ void Foam::profileData::calcStaticStallAngle()
 {
     // Static stall is where the slope of the drag coefficient curve first
     // breaks {threshold} per degree
-    scalar threshold = 0.03;
-    scalar alpha=GREAT, cd0, cd1, slope, dAlpha;
+    scalar threshold = 0.000000001;//0.03;
+    scalar alpha=GREAT, cl0, cl1, slope, dAlpha,clmax;
+    clmax = 0;
     forAll(angleOfAttackList_, i)
     {
         alpha = angleOfAttackList_[i];
         if (alpha > 2 && alpha < 30)
         {
-            cd1 = dragCoefficient(alpha + 1.0);
-            cd0 = dragCoefficient(alpha);
-            dAlpha = 1.0;
-            slope = (cd1 - cd0)/dAlpha;
-            if (slope > threshold)
+            //cl1 = liftCoefficient(alpha + 1.0);
+            cl0 = liftCoefficient(alpha);
+            slope = cl0- clmax;
+            //dAlpha = 1.0;
+            //slope = (cl1 - cl0)/dAlpha;
+            //if (slope < threshold)
+            if (slope >= 0)
             {
+        	clmax = cl0;
                 staticStallAngle_ = alpha;
-                break;
+                //break;
             }
         }
     }

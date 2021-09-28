@@ -496,22 +496,38 @@ void Foam::fv::axialFlowTurbineALSource::calcEndEffects()
             {
                 if (endEffectsCoeffs.lookupOrDefault("tipEffects", true))
                 {
-                    scalar acosArg = Foam::exp
-                    (
-                        -nBlades_/2.0*(1.0/rootDist - 1)/sin(phi)
-                    );
+                    scalar acosArg;
+                    if (phi == 0)
+                    {
+                	acosArg = 0;
+                    }
+                    else
+                    {
+                        acosArg = Foam::exp
+                        (
+                            -nBlades_/2.0*(1.0/rootDist - 1)/fabs(sin(phi))
+                        );
+                    }    
                     f = 2.0/pi*acos(min(1.0, acosArg));
                 }
                 if (endEffectsCoeffs.lookupOrDefault("rootEffects", false))
                 {
                     scalar tipDist = 1.0 - rootDist;
-                    scalar acosArg = Foam::exp
-                    (
-                        -nBlades_/2.0*(1.0/tipDist - 1)/sin(phi)
-                    );
+                    scalar acosArg;
+                    if (phi == 0)
+                    {
+                        acosArg = 0;
+                    }
+                    else
+                    {
+                        acosArg = Foam::exp
+                        (
+                            -nBlades_/2.0*(1.0/tipDist - 1)/fabs(sin(phi))
+                        );
+                    }
                     f *= 2.0/pi*acos(min(1.0, acosArg));
-                }
-            }
+    	        }
+	    }
             else if (endEffectsModel_ == "Shen")
             {
                 scalar c1;
