@@ -164,7 +164,7 @@ void Foam::fv::axialFlowTurbineALSource::createBlades()
             // Set initial velocity of quarter chord
             scalar radiusCorr = sqrt(magSqr((chordMount - 0.25)*chordLength)
                                      + magSqr(radius));
-            vector initialVelocity = azimuthalDirection_*omega_*radiusCorr;
+            vector initialVelocity = azimuthalDirection_*fabs(omega_)*radiusCorr;
             scalar velAngle = atan2(((chordMount - 0.25)*chordLength), radius);
             rotateVector(initialVelocity, vector::zero, axis_, velAngle);
             initialVelocities[j] = initialVelocity;
@@ -675,7 +675,7 @@ void Foam::fv::axialFlowTurbineALSource::addSup
 )
 {
     // Rotate the turbine if time value has changed
-    //Info << "Okay" << endl;
+    //Info << "LastRotationTime" <<lastRotationTime_<< endl;
     if (time_.value() != lastRotationTime_)
     {
         rotate();
@@ -745,8 +745,8 @@ void Foam::fv::axialFlowTurbineALSource::addSup
     torque_ = moment & axis_;
     if (mag(freeStreamVelocity_) == 0)
     {
-        torqueCoefficient_ = 0;
-        dragCoefficient_ = 0;
+        torqueCoefficient_ = torque_;
+        dragCoefficient_ = mag(force_);
     }
     else
     {
