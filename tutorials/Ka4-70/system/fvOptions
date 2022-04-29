@@ -32,6 +32,7 @@ turbine
         freeStreamVelocity  (0.1 0 0);
         tipSpeedRatio       60.0;
         rotorRadius         0.05;
+	angleVelocity       100; //angular velocity of turbines totation without free stream flow
 
         dynamicStall
         {
