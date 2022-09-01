@@ -164,7 +164,7 @@ void Foam::fv::axialFlowTurbineALSource::createBlades()
             // Set initial velocity of quarter chord
             scalar radiusCorr = sqrt(magSqr((chordMount - 0.25)*chordLength)
                                      + magSqr(radius));
-            vector initialVelocity = azimuthalDirection_*omega_*radiusCorr;
+            vector initialVelocity = azimuthalDirection_*fabs(omega_)*radiusCorr;
             scalar velAngle = atan2(((chordMount - 0.25)*chordLength), radius);
             rotateVector(initialVelocity, vector::zero, axis_, velAngle);
             initialVelocities[j] = initialVelocity;
@@ -496,22 +496,38 @@ void Foam::fv::axialFlowTurbineALSource::calcEndEffects()
             {
                 if (endEffectsCoeffs.lookupOrDefault("tipEffects", true))
                 {
-                    scalar acosArg = Foam::exp
-                    (
-                        -nBlades_/2.0*(1.0/rootDist - 1)/sin(phi)
-                    );
+                    scalar acosArg;
+                    if (phi == 0)
+                    {
+                	acosArg = 0;
+                    }
+                    else
+                    {
+                        acosArg = Foam::exp
+                        (
+                            -nBlades_/2.0*(1.0/rootDist - 1)/fabs(sin(phi))
+                        );
+                    }    
                     f = 2.0/pi*acos(min(1.0, acosArg));
                 }
                 if (endEffectsCoeffs.lookupOrDefault("rootEffects", false))
                 {
                     scalar tipDist = 1.0 - rootDist;
-                    scalar acosArg = Foam::exp
-                    (
-                        -nBlades_/2.0*(1.0/tipDist - 1)/sin(phi)
-                    );
+                    scalar acosArg;
+                    if (phi == 0)
+                    {
+                        acosArg = 0;
+                    }
+                    else
+                    {
+                        acosArg = Foam::exp
+                        (
+                            -nBlades_/2.0*(1.0/tipDist - 1)/fabs(sin(phi))
+                        );
+                    }
                     f *= 2.0/pi*acos(min(1.0, acosArg));
-                }
-            }
+    	        }
+	    }
             else if (endEffectsModel_ == "Shen")
             {
                 scalar c1;
@@ -659,7 +675,7 @@ void Foam::fv::axialFlowTurbineALSource::addSup
 )
 {
     // Rotate the turbine if time value has changed
-    //Info << "Okay" << endl;
+    //Info << "LastRotationTime" <<lastRotationTime_<< endl;
     if (time_.value() != lastRotationTime_)
     {
         rotate();
@@ -729,8 +745,8 @@ void Foam::fv::axialFlowTurbineALSource::addSup
     torque_ = moment & axis_;
     if (mag(freeStreamVelocity_) == 0)
     {
-        torqueCoefficient_ = 0;
-        dragCoefficient_ = 0;
+        torqueCoefficient_ = torque_;
+        dragCoefficient_ = mag(force_);
     }
     else
     {
