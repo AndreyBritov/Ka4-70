@@ -147,7 +147,7 @@ void Foam::fv::turbineALSource::updateTSROmega()
     tipSpeedRatio_ = meanTSR_ + tsrAmplitude_*cos(nBlades_*(theta - tsrPhase_));
     if (mag(freeStreamVelocity_) == 0)
     {
-        omega_ = omega_;//52.36;//tipSpeedRatio_/rotorRadius_;
+        omega_ = tipSpeedRatio_/rotorRadius_;
     }
     else
     {    
@@ -158,17 +158,8 @@ void Foam::fv::turbineALSource::updateTSROmega()
 
 void Foam::fv::turbineALSource::rotate()
 {
-    scalar radians_start;
-    if ((angleDeg_ == 0) && (time_.value() != time_.deltaT().value()))
-    {
-	radians_start = omega_ * time_.value();
-    }
-    else
-    {
-	radians_start = 0;
-    }
     scalar deltaT = time_.deltaT().value();
-    scalar radians = omega_*deltaT + radians_start;
+    scalar radians = omega_*deltaT;
     rotate(radians);
     angleDeg_ += radToDeg(radians);
     lastRotationTime_ = time_.value();
@@ -298,26 +289,26 @@ void Foam::fv::turbineALSource::writePerf()
 	scalar bladeCt;
 	if (mag(freeStreamVelocity_) == 0)
 	{
-	    bladeCd = mag(blades_[i].force());
+	    bladeCd = 0;
 	}
 	else
 	{
             bladeCd = blades_[i].force() & freeStreamDirection_
             / (0.5*frontalArea_*magSqr(freeStreamVelocity_));
 	}
-        *outputFile_<< "," << blades_[i].force();
+        *outputFile_<< "," << bladeCd;
         // Write torque coefficient contribution from blade
         scalar bladeTorque = bladeMoments_[i] & axis_;
 	if (mag(freeStreamVelocity_) == 0)
 	{
-	    bladeCt = bladeTorque;
+	    bladeCt = 0;
 	}
 	else
 	{
         bladeCt = bladeTorque
             / (0.5*frontalArea_*rotorRadius_* magSqr(freeStreamVelocity_));
 	}
-        *outputFile_<< "," << bladeTorque;
+        *outputFile_<< "," << bladeCt;
     }
 
     *outputFile_<< endl;
@@ -345,9 +336,6 @@ bool Foam::fv::turbineALSource::read(const dictionary& dict)
         coeffs_.lookup("freeStreamVelocity") >> freeStreamVelocity_;
         coeffs_.lookup("tipSpeedRatio") >> meanTSR_;
         coeffs_.lookup("rotorRadius") >> rotorRadius_;
-        coeffs_.lookup("angleVelocity") >> omega_;
-        //angleDeg_=omega_* lastRotationTime_;
-        Info<<"angleDeg"<<angleDeg_<<endl;
         tsrAmplitude_ = coeffs_.lookupOrDefault("tsrAmplitude", 0.0);
         tsrPhase_ = coeffs_.lookupOrDefault("tsrPhase", 0.0);
 

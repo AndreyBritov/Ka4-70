@@ -69,7 +69,7 @@ bool Foam::fv::actuatorLineSource::read(const dictionary& dict)
 	if (mag(freeStreamVelocity_) == 0)
 	{
 	    //Info << "1" << endl;
-	    freeStreamDirection_= vector(1, 0 ,0); //freeStreamVelocity_;
+	    freeStreamDirection_= vector(0, 0 ,0); //freeStreamVelocity_;
 	}
 	else
 	{
@@ -161,7 +161,7 @@ void Foam::fv::actuatorLineSource::createElements()
     elements_.setSize(nElements_);
 
     label nGeometryPoints = elementGeometry_.size();
-    //Info << nElements_ << endl;
+    Info << nElements_ << endl;
     //elements_.setSize(nGeometryPoints);
     label nGeometrySegments = nGeometryPoints - 1;
     label nElementsPerSegment = nElements_/nGeometrySegments;
@@ -190,7 +190,7 @@ void Foam::fv::actuatorLineSource::createElements()
         scalar y = elementGeometry_[i][0][1];
         scalar z = elementGeometry_[i][0][2];
         points[i] = vector(x, y, z);
-	//Info << points[i] << endl;
+	Info << points[i] << endl;
         if (i > 0)
         {
             spanLengths[i - 1] = mag(points[i] - points[i-1]);
@@ -420,7 +420,6 @@ void Foam::fv::actuatorLineSource::writePerf()
         cl += elements_[i].liftCoefficient()*area;
         cd += elements_[i].dragCoefficient()*area;
         cm += elements_[i].momentCoefficient()*area;
-        //Info<<" points "<<pos<<endl;
     }
 
     x /= nElements_; y /= nElements_; z /= nElements_;

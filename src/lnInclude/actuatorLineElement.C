@@ -57,7 +57,7 @@ void Foam::fv::actuatorLineElement::read()
     dict_.lookup("freeStreamVelocity") >> freeStreamVelocity_;
     if (mag(freeStreamVelocity_) == 0)
     {
-        freeStreamDirection_=vector(1, 0, 0);
+        freeStreamDirection_=vector(0, 0, 0);
     }
     else
     {
@@ -294,7 +294,7 @@ void Foam::fv::actuatorLineElement::correctFlowCurvature
 
     if (flowCurvatureModelName_ == "Goude")
     {
-        angleOfAttackRad += fabs(omega_)*chordLength_/(2*mag(relativeVelocity_));
+        angleOfAttackRad += omega_*chordLength_/(2*mag(relativeVelocity_));
     }
     else if (flowCurvatureModelName_ == "MandalBurton")
     {
@@ -352,7 +352,6 @@ void Foam::fv::actuatorLineElement::applyForceField
 
     // Apply force to the cells within the element's sphere of influence
     scalar sphereRadius = chordLength_ + projectionRadius;
-    //Info <<"forceVector sample"<<forceVector_<<endl;
     forAll(mesh_.cells(), cellI)
     {
         scalar dis = mag(mesh_.C()[cellI] - position_);
@@ -363,9 +362,6 @@ void Foam::fv::actuatorLineElement::applyForceField
                           * Foam::pow(Foam::constant::mathematical::pi, 1.5));
             // forceField is opposite forceVector
             forceField[cellI] += -forceVector_*factor;
-            //Info<<"   factor "<< factor << endl;
-            //Info<<"   dis    "<<dis<<endl;
-            //Info<<"epsilon   "<<epsilon<<endl;
         }
     }
 
@@ -384,7 +380,6 @@ void Foam::fv::actuatorLineElement::calculateInflowVelocity
     // Find local flow velocity by interpolating to element location
     inflowVelocity_ = vector(VGREAT, VGREAT, VGREAT);
     vector inflowVelocityPoint = position_;
-    //Info<<"position"<<position_<<endl;
     interpolationCellPoint<vector> UInterp(Uin);
     
     // If the flow only is sampled in the center
@@ -513,9 +508,6 @@ void Foam::fv::actuatorLineElement::writePerf()
                 << endEffectFactor_ << "," << tangentialRefCoefficient() << ","
                 << normalRefCoefficient() << "," << tangentialRefForce() << ","
                 << normalRefForce() << endl;
-//    Info<<"ForceVector_X  "<<forceVector_.x()<<endl;
-//    Info<<"ForceVector_Y  "<<forceVector_.y()<<endl;
-//    Info<<"ForceVector_Z  "<<forceVector_.z()<<endl;
 }
 
 
@@ -839,12 +831,6 @@ void Foam::fv::actuatorLineElement::calculateForce
         dragDirection = relativeVelocity_/mag(relativeVelocity_);
     }
     forceVector_ = lift*liftDirection + drag*dragDirection;
-    //Info<< " forceVector after calculation"<<forceVector_<<endl;
-    //Info<< " liftDirection"<<liftDirection<<endl;
-    //Info<< " dragDirection"<<dragDirection<<endl;
-    //Info<< " relativeVelocity"<<relativeVelocity_<<endl;
-    //Info<< " drag"<<drag<<endl;
-    //Info<< " lift"<<lift<<endl;
 
     if (debug)
     {
@@ -1081,7 +1067,6 @@ void Foam::fv::actuatorLineElement::addSup
     applyForceField(forceFieldI);
 
     // Add force to total actuator line force
-    //Info<<"forceFieldI"<<forceFieldI<<endl;
     forceField += forceFieldI;
 
     // Write performance to file

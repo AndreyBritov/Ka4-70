@@ -1,0 +1,316 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  6                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+turbine
+{
+    type            axialFlowTurbineALSource;
+    active          on;
+
+    axialFlowTurbineALSourceCoeffs
+    {
+        fieldNames          (U);
+        selectionMode       cellSet; // cellSet || points || cellZone
+        cellSet             turbine;
+        origin              (0.8 0.2 0.5);
+        axis                (1 0 0);
+        verticalDirection   (0 1 0);
+        freeStreamVelocity  (0.1 0 0);
+        tipSpeedRatio       60.0;
+        rotorRadius         0.05;
+	angleVelocity       100; //angular velocity of turbines totation without free stream flow
+
+        dynamicStall
+        {
+            active          on;
+            dynamicStallModel LeishmanBeddoes;
+        }
+
+        endEffects
+        {
+            active          off;
+            endEffectsModel Glauert; // Glauert || Shen || liftingLine
+            GlauertCoeffs
+            {
+                tipEffects  on;
+                rootEffects on;
+            }
+            ShenCoeffs
+            {
+                c1          0.125;
+                c2          21;
+                tipEffects  on;
+                rootEffects on;
+            }
+        }
+
+        blades
+        {
+            blade1
+            {
+                writePerf   true;
+		writeVTK    true;
+                writeElementPerf true;
+                nElements  32;
+                elementProfiles
+                (
+                    //cylinder
+                    Ka02
+		    Ka0225
+		    Ka025
+		    Ka0275
+		    Ka03
+		    Ka0325
+		    Ka035
+		    Ka0375
+            	    Ka04
+		    Ka0425
+		    Ka045
+		    Ka0475
+		    Ka05
+		    Ka0525
+		    Ka055
+		    Ka0575
+		    Ka06
+		    Ka0625
+		    Ka065
+		    Ka0675
+		    Ka07
+		    Ka0725
+		    Ka075
+		    Ka0775
+		    Ka08
+		    Ka0825
+		    Ka085
+		    Ka0875
+		    Ka09
+		    Ka0925
+		    Ka095
+		    Ka0975
+		    Ka10
+                );
+                elementData
+                (
+                    #include "elementData"
+                );
+            }
+            blade2
+            {
+                $blade1;
+                writePerf   false;
+		writeVTK    true;
+                writeElementPerf false;
+                azimuthalOffset 90.0;
+            }
+            blade3
+            {
+                $blade2;
+		writeVTK    true;
+                azimuthalOffset 180.0;
+            }
+		
+		blade4
+            {
+                $blade3;
+                writePerf   false;
+		writeVTK    true;
+                writeElementPerf false;
+                azimuthalOffset 270.0;
+            }
+        }
+
+       // tower
+       // {
+       //     includeInTotalDrag  false; // default is false
+        //    nElements   6;
+        //    elementProfiles (cylinder);
+        //    elementData
+         //   ( // axial distance (turbine axis), height, diameter
+               // (-0.14 -0.82 0.09)
+                //(-0.14 -0.66 0.08)
+               // (-0.14 -0.42 0.06)
+                //(-0.14  0.00 0.05)
+
+
+		//(0.1 0.22 0.09)
+             //   (0.1 0.21 0.08)
+             //   (0.1 0.20 0.06)
+              //  (0.1  0.00 0.05)
+		
+           // );
+        //}
+
+       // hub
+       // {
+       //     nElements   1;
+        //    elementProfiles (cylinder);
+         //   elementData
+         //   (  //axial distance, height, diameter
+	//	(0 -0.005 0.01)
+          //     (0 0.005 0.01)
+          //  );
+      //  }
+
+        profileData
+        {
+            Ka02
+            {
+                data (#include "../../resources/foilData/Ka4-70_02");
+            }
+	    Ka0225
+            {
+                data (#include "../../resources/foilData/Ka4-70_0225");
+            }
+	    Ka025
+            {
+                data (#include "../../resources/foilData/Ka4-70_025");
+            }
+	    Ka0275
+            {
+                data (#include "../../resources/foilData/Ka4-70_0275");
+            }
+		
+	    Ka03
+            {
+                data (#include "../../resources/foilData/Ka4-70_03");
+            }
+	    Ka0325
+            {
+                data (#include "../../resources/foilData/Ka4-70_0325");
+            }
+	    Ka035
+            {
+                data (#include "../../resources/foilData/Ka4-70_035");
+            }
+	    Ka0375
+            {
+                data (#include "../../resources/foilData/Ka4-70_0375");
+            }
+	    Ka04
+            {
+                data (#include "../../resources/foilData/Ka4-70_04");
+            }
+	    Ka0425
+            {
+                data (#include "../../resources/foilData/Ka4-70_0425");
+            }
+	    Ka045
+            {
+                data (#include "../../resources/foilData/Ka4-70_045");
+            }
+	    Ka0475
+            {
+                data (#include "../../resources/foilData/Ka4-70_0475");
+            }
+	    Ka05
+            {
+                data (#include "../../resources/foilData/Ka4-70_05");
+            }
+	    Ka0525
+            {
+                data (#include "../../resources/foilData/Ka4-70_0525");
+            }
+	    Ka055
+            {
+                data (#include "../../resources/foilData/Ka4-70_055");
+            }
+	    Ka0575
+            {
+                data (#include "../../resources/foilData/Ka4-70_0575");
+            }
+	    Ka06
+            {
+                data (#include "../../resources/foilData/Ka4-70_06");
+            }
+	    Ka0625
+            {
+                data (#include "../../resources/foilData/Ka4-70_0625");
+            }
+	    Ka065
+            {
+                data (#include "../../resources/foilData/Ka4-70_065");
+            }
+	    Ka0675
+            {
+                data (#include "../../resources/foilData/Ka4-70_0675");
+            }
+	    Ka07
+            {
+                data (#include "../../resources/foilData/Ka4-70_07");
+            }
+	    Ka0725
+            {
+                data (#include "../../resources/foilData/Ka4-70_0725");
+            }
+	    Ka075
+            {
+                data (#include "../../resources/foilData/Ka4-70_075");
+            }
+	    Ka0775
+            {
+                data (#include "../../resources/foilData/Ka4-70_0775");
+            }
+	    Ka08
+            {
+                data (#include "../../resources/foilData/Ka4-70_08");
+            }
+	    Ka0825
+            {
+                data (#include "../../resources/foilData/Ka4-70_0825");
+            }
+	    Ka085
+            {
+                data (#include "../../resources/foilData/Ka4-70_085");
+            }
+	    Ka0875
+            {
+                data (#include "../../resources/foilData/Ka4-70_0875");
+            }
+	    Ka09
+            {
+                data (#include "../../resources/foilData/Ka4-70_09");
+            }
+	     Ka0925
+            {
+                data (#include "../../resources/foilData/Ka4-70_0925");
+            }
+	    Ka095
+            {
+                data (#include "../../resources/foilData/Ka4-70_095");
+            }
+	    Ka0975
+            {
+                data (#include "../../resources/foilData/Ka4-70_0975");
+            }
+	    Ka10
+            {
+                data (#include "../../resources/foilData/Ka4-70_10");
+            }
+	    cylinder
+            {
+                data (#include "../../resources/foilData/cylinder");
+            }
+            //cylinder
+            //{
+              //  data ((-180 0 1.1)(180 0 1.1));
+		//data ((-180 0.2 0.5)(180 0.2 0.5));
+            //}
+        }
+    }
+}
+
+// ************************************************************************* //
